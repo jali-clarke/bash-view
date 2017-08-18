@@ -5,6 +5,7 @@ import System.Console.Terminal.Size (Window(..), size)
 
 import PicConvert
 
+-- could have used a monad stack here but the app is simple enough that it isn't necessary
 main :: IO ()
 main = do
     args <- getArgs

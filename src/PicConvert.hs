@@ -21,7 +21,12 @@ scaleImage newWidth oldImg@(Image oldWidth oldHeight _) =
         else generateImage genFunc newWidth newHeight
     where
         newHeight = (oldHeight * newWidth) `div` oldWidth
-        genFunc px py = pixelAt oldImg ((px * oldWidth) `div` newWidth) ((py * oldHeight) `div` newHeight)
+        pixAccFunc (PixelRGB8 r g b) ((pr, pg, pb), plen) = ((pr + fromIntegral r, pg + fromIntegral g, pb + fromIntegral b), plen + 1)
+        genFunc px py =
+            let xstart =
+                ystart =
+                ((pr, pg, pb), plen) = foldr pixAccFunc ((0, 0, 0), 0) [pixelAt oldImg i j | ]
+            in PixelRGB8 (fromIntegral (pr `div` plen)) (fromIntegral (pg `div` plen)) (fromIntegral (pb `div` plen))
 
 colourMap :: [((Int, Int, Int), (Color, ColorIntensity))]
 colourMap = [
