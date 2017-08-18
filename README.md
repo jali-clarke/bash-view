@@ -1,8 +1,8 @@
 # bash-view
 
-Display images in ANSI shells.
+Display images in ANSI shells; maximize terminal window for best results.
 
-Build using stack:
+Built using stack.
 
 build: stack build
 run with file: stack exec bash-view-exe <test file>
