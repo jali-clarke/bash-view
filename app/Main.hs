@@ -1,7 +1,7 @@
 module Main where
 
 import System.Environment (getArgs)
-import System.Console.Terminal.Size (size)
+import System.Console.Terminal.Size (Window(..), size)
 
 import PicConvert
 

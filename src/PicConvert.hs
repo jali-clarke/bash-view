@@ -5,7 +5,7 @@ module PicConvert (
 ) where
 
 import Codec.Picture
-import System.Console.ANSI (setSGR)
+import System.Console.ANSI (setSGR, Color(..), ColorIntensity(..), SGR(..), ConsoleLayer(..))
 import Data.List (minimumBy)
 import Data.Foldable (traverse_)
 
