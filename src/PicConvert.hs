@@ -5,7 +5,7 @@ module PicConvert (
 ) where
 
 import Codec.Picture
-import System.Console.ANSI
+import System.Console.ANSI (setSGR)
 import Data.List (minimumBy)
 import Data.Foldable (traverse_)
 
@@ -15,7 +15,10 @@ fetchImage = fmap (fmap convertRGB8) . readImage
 
 -- new width -> image data -> scaled image
 scaleImage :: Int -> Image PixelRGB8 -> Image PixelRGB8
-scaleImage newWidth oldImg@(Image oldWidth oldHeight _) = generateImage genFunc newWidth newHeight
+scaleImage newWidth oldImg@(Image oldWidth oldHeight _) =
+    if newWidth >= oldWidth
+        then oldImg
+        else generateImage genFunc newWidth newHeight
     where
         newHeight = (oldHeight * newWidth) `div` oldWidth
         genFunc px py = pixelAt oldImg ((px * oldWidth) `div` newWidth) ((py * oldHeight) `div` newHeight)
