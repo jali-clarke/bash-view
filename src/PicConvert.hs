@@ -28,7 +28,7 @@ scaleImage newWidth oldImg@(Image oldWidth oldHeight _) =
                 xend = (min oldWidth $ xstart + scaleFactor) - 1
                 ystart = py * scaleFactor
                 yend = (min oldHeight $ ystart + scaleFactor) - 1
-                ((pr, pg, pb), plen) = foldr pixAccFunc ((0, 0, 0), 0) [pixelAt oldImg i j | j <- [ystart .. yend], i <- [xstart .. xend]]
+                ((pr, pg, pb), plen) = foldr pixAccFunc ((0, 0, 0), 0) $ (flip (pixelAt oldImg)) <$> [ystart .. yend] <*> [xstart .. xend]
             in PixelRGB8 (fromIntegral (pr `div` plen)) (fromIntegral (pg `div` plen)) (fromIntegral (pb `div` plen))
 
 colourMap :: [((Int, Int, Int), (Color, ColorIntensity))]
@@ -67,7 +67,7 @@ colourConvert (PixelRGB8 r g b) = snd $ minimumBy minFunc colourMap
 renderImage :: Image PixelRGB8 -> IO ()
 renderImage img@(Image imgWidth imgHeight _) = traverse_ renderRow [0 .. imgHeight - 1] >> setSGR []
     where
-        renderRow j = traverse_ (flip renderPixel j) [0 .. imgWidth - 1] >> putChar '\n'
-        renderPixel i j =
+        renderRow j = traverse_ (renderPixel j) [0 .. imgWidth - 1] >> putChar '\n'
+        renderPixel j i =
             let (color, colorIntensity) = colourConvert (pixelAt img i j)
             in setSGR [SetColor Background colorIntensity color] >> putChar ' '
