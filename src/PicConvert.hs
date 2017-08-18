@@ -7,6 +7,7 @@ module PicConvert (
 import Codec.Picture
 import System.Console.ANSI
 import Data.List (minimumBy)
+import Data.Foldable (traverse_)
 
 -- give it the image path and return either an error or the image data (colours squashed)
 fetchImage :: FilePath -> IO (Either String (Image PixelRGB8))
@@ -53,9 +54,9 @@ colourConvert (PixelRGB8 r g b) = snd $ minimumBy minFunc colourMap
 
 -- takes image data to render, and renders it
 renderImage :: Image PixelRGB8 -> IO ()
-renderImage img@(Image imgWidth imgHeight _) = sequence_ [renderRow j >> setSGR [] >> putChar '\n' | j <- [0 .. imgHeight - 1]]
+renderImage img@(Image imgWidth imgHeight _) = traverse_ renderRow [0 .. imgHeight - 1] >> setSGR []
     where
-        renderRow j = sequence_ [renderPixel i j | i <- [0 .. imgWidth - 1]]
+        renderRow j = traverse_ (flip renderPixel j) [0 .. imgWidth - 1] >> putChar '\n'
         renderPixel i j =
             let (color, colorIntensity) = colourConvert (pixelAt img i j)
             in setSGR [SetColor Background colorIntensity color] >> putChar ' '
