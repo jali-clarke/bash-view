@@ -14,7 +14,11 @@ fetchImage = fmap (fmap convertRGB8) . readImage
 
 -- new width -> image data -> scaled image
 scaleImage :: Int -> Image PixelRGB8 -> Image PixelRGB8
-scaleImage = undefined
+scaleImage newWidth oldImg@(Image oldWidth oldHeight _) = generateImage genFunc newWidth newHeight
+    where
+        newHeight = (oldHeight * newWidth) `div` oldWidth
+
+        genFunc px py = undefined
 
 colourMap :: [((Int, Int, Int), (Color, ColorIntensity))]
 colourMap = [
@@ -50,5 +54,9 @@ colourConvert (PixelRGB8 r g b) = snd $ minimumBy minFunc colourMap
 
 -- takes image data to render, and renders it
 renderImage :: Image PixelRGB8 -> IO ()
-renderImage img@(Image imgWidth imgHeight _) = do
-    putStrLn ""
+renderImage img@(Image imgWidth imgHeight _) = sequence_ [renderRow i >> setSGR [] >> putChar '\n' | i <- [0 .. imgHeight - 1]]
+    where
+        renderRow i = sequence_ [renderPixel i j | j <- [0 .. imgWidth - 1]]
+        renderPixel i j =
+            let (color, colorIntensity) = colourConvert (pixelAt img i j)
+            in setSGR [SetColor Background colorIntensity color] >> putChar ' '

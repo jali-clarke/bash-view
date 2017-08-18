@@ -18,4 +18,4 @@ main = do
                     maybeSize <- size
                     case maybeSize of
                         Nothing -> putStrLn "could not get terminal size"
-                        Just (Window _ width) -> putStrLn "" >> renderImage (scaleImage width img) >> putStrLn ""
+                        Just (Window _ width) -> putChar '\n' >> renderImage (scaleImage width img) >> putChar '\n'
