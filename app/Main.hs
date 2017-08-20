@@ -13,8 +13,7 @@ main = do
         args <- liftIO getArgs
         when (null args) (throwError "no filename given")
 
-        result <- liftIO (fetchImage (head args))
-        img <- ExceptT (return result)
+        img <- ExceptT $ fetchImage (head args)
         maybeSize <- liftIO size
         maybe (throwError "could not get terminal size") (liftIO . renderAction img) maybeSize
 
