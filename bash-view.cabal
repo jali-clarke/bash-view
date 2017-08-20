@@ -28,6 +28,7 @@ executable bash-view-exe
   build-depends:       base
                      , bash-view
                      , terminal-size
+                     , mtl
   default-language:    Haskell2010
 
 test-suite bash-view-test
