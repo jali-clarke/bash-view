@@ -31,28 +31,28 @@ scaleImage newWidth oldImg@(Image oldWidth oldHeight _) =
                 ((pr, pg, pb), plen) = foldr pixAccFunc ((0, 0, 0), 0) $ (flip (pixelAt oldImg)) <$> [ystart .. yend] <*> [xstart .. xend]
             in PixelRGB8 (fromIntegral (pr `div` plen)) (fromIntegral (pg `div` plen)) (fromIntegral (pb `div` plen))
 
-colourMap :: [((Int, Int, Int), (Color, ColorIntensity))]
+colourMap :: [((Int, Int, Int), (ColorIntensity, Color))]
 colourMap = [
-    ((0, 0, 0), (Black, Dull)), -- black
-    ((128, 0, 0), (Red, Dull)), -- red
-    ((0, 128, 0), (Green, Dull)), -- green
-    ((128, 128, 0), (Yellow, Dull)), -- yellow
-    ((0, 0, 128), (Blue, Dull)), -- blue
-    ((128, 0, 128), (Magenta, Dull)), -- magenta
-    ((0, 128, 128), (Cyan, Dull)), -- cyan
-    ((192, 192, 192), (White, Dull)), -- light gray
-    ((128, 128, 128), (Black, Vivid)), -- dark gray
-    ((255, 0, 0), (Red, Vivid)), -- light red
-    ((0, 255, 0), (Green, Vivid)), -- light green
-    ((255, 255, 0), (Yellow, Vivid)), -- light yellow
-    ((0, 0, 255), (Blue, Vivid)), -- light blue
-    ((255, 0, 255), (Magenta, Vivid)), -- light magenta
-    ((0, 255, 255), (Cyan, Vivid)), -- light cyan
-    ((255, 255, 255), (White, Vivid))-- white
+    ((0, 0, 0), (Dull, Black)), -- black
+    ((128, 0, 0), (Dull, Red)), -- red
+    ((0, 128, 0), (Dull, Green)), -- green
+    ((128, 128, 0), (Dull, Yellow)), -- yellow
+    ((0, 0, 128), (Dull, Blue)), -- blue
+    ((128, 0, 128), (Dull, Magenta)), -- magenta
+    ((0, 128, 128), (Dull, Cyan)), -- cyan
+    ((192, 192, 192), (Dull, White)), -- light gray
+    ((128, 128, 128), (Vivid, Black)), -- dark gray
+    ((255, 0, 0), (Vivid, Red)), -- light red
+    ((0, 255, 0), (Vivid, Green)), -- light green
+    ((255, 255, 0), (Vivid, Yellow)), -- light yellow
+    ((0, 0, 255), (Vivid, Blue)), -- light blue
+    ((255, 0, 255), (Vivid, Magenta)), -- light magenta
+    ((0, 255, 255), (Vivid, Cyan)), -- light cyan
+    ((255, 255, 255), (Vivid, White))-- white
     ]
 
 -- convert RGB8 to console colours
-colourConvert :: PixelRGB8 -> (Color, ColorIntensity)
+colourConvert :: PixelRGB8 -> (ColorIntensity, Color)
 colourConvert (PixelRGB8 r g b) = snd $ minimumBy minFunc colourMap
     where
         rInt = fromIntegral r
@@ -68,10 +68,13 @@ renderImage :: Image PixelRGB8 -> IO ()
 renderImage img@(Image imgWidth imgHeight _) = renderRows 0
     where
         renderRows j =
-            if j == imgHeight
+            if j >= imgHeight
                 then return ()
-                else traverse_ (renderPixel j) [0 .. imgWidth - 1] >> setSGR [Reset] >> putChar '\n' >> renderRows (j + 1)
+                else renderPixels j 0 >> setSGR [Reset] >> putChar '\n' >> renderRows (j + 1)
 
-        renderPixel j i =
-            let (color, colorIntensity) = colourConvert (pixelAt img i j)
-            in setSGR [SetColor Background colorIntensity color] >> putChar ' '
+        renderPixels j i =
+            if i >= imgWidth
+                then return ()
+                else
+                    let (colorIntensity, color) = colourConvert (pixelAt img i j)
+                    in setSGR [SetColor Background colorIntensity color] >> putChar ' ' >> renderPixels j (i + 1)
