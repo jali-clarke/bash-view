@@ -65,9 +65,9 @@ colourConvert (PixelRGB8 r g b) = snd $ minimumBy minFunc colourMap
 
 -- takes image data to render, and renders it
 renderImage :: Image PixelRGB8 -> IO ()
-renderImage img@(Image imgWidth imgHeight _) = traverse_ renderRow [0 .. imgHeight - 1] >> setSGR []
+renderImage img@(Image imgWidth imgHeight _) = traverse_ renderRow [0 .. imgHeight - 1] >> setSGR [Reset]
     where
-        renderRow j = traverse_ (renderPixel j) [0 .. imgWidth - 1] >> putChar '\n'
+        renderRow j = traverse_ (renderPixel j) [0 .. imgWidth - 1] >> setSGR [Reset] >> putChar '\n'
         renderPixel j i =
             let (color, colorIntensity) = colourConvert (pixelAt img i j)
             in setSGR [SetColor Background colorIntensity color] >> putChar ' '
